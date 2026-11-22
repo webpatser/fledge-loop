@@ -1,0 +1,183 @@
+# Level-9 findings in the files derived from revolt/event-loop v1.1.0, kept as ported.
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Method Fledge\\Loop\:\:getSuspension\(\) return type with generic interface Fledge\\Loop\\Suspension does not specify its types\: T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Loop.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(\\Closure\(\.\.\.\)\:void \$closure The callback to queue\.\)\: Unexpected token "\(", expected variable at offset 462 on line 10$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: src/Loop.php
+
+		-
+			message: '#^Method Fledge\\Loop\\Driver\:\:__debugInfo\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Loop/Driver.php
+
+		-
+			message: '#^Method Fledge\\Loop\\Driver\:\:getSuspension\(\) return type with generic interface Fledge\\Loop\\Suspension does not specify its types\: T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Loop/Driver.php
+
+		-
+			message: '#^PHPDoc tag @param has invalid value \(\\Closure\(\.\.\.\)\:void \$closure The callback to queue\.\)\: Unexpected token "\(", expected variable at offset 462 on line 10$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: src/Loop/Driver.php
+
+		-
+			message: '#^Cannot access offset 0 on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: src/Loop/FiberLocal.php
+
+		-
+			message: '#^Method Fledge\\Loop\\FiberLocal\:\:getFiberStorage\(\) return type with generic class WeakMap does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Loop/FiberLocal.php
+
+		-
+			message: '#^Method Fledge\\Loop\\FiberLocal\:\:getFiberStorage\(\) should return WeakMap but returns mixed\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Loop/FiberLocal.php
+
+		-
+			message: '#^Property Fledge\\Loop\\FiberLocal\:\:\$localStorage with generic class WeakMap does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Loop/FiberLocal.php
+
+		-
+			message: '#^Property Fledge\\Loop\\FiberLocal\:\:\$mainFiber with generic class Fiber does not specify its types\: TStart, TResume, TReturn, TSuspend$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Loop/FiberLocal.php
+
+		-
+			message: '#^Access to an uninitialized readonly property Fledge\\Loop\\Internal\\AbstractDriver\:\:\$internalSuspensionMarker\.$#'
+			identifier: property.uninitializedReadonly
+			count: 4
+			path: src/Loop/Internal/AbstractDriver.php
+
+		-
+			message: '#^Anonymous function should return Closure\|null but returns mixed\.$#'
+			identifier: return.type
+			count: 3
+			path: src/Loop/Internal/AbstractDriver.php
+
+		-
+			message: '#^Method Fledge\\Loop\\Internal\\AbstractDriver\:\:__debugInfo\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Loop/Internal/AbstractDriver.php
+
+		-
+			message: '#^Method Fledge\\Loop\\Internal\\AbstractDriver\:\:__unserialize\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Loop/Internal/AbstractDriver.php
+
+		-
+			message: '#^Method Fledge\\Loop\\Internal\\AbstractDriver\:\:getSuspension\(\) return type with generic interface Fledge\\Loop\\Suspension does not specify its types\: T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Loop/Internal/AbstractDriver.php
+
+		-
+			message: '#^Method Fledge\\Loop\\Internal\\AbstractDriver\:\:invokeMicrotasks\(\) has parameter \$fiber with generic class Fiber but does not specify its types\: TStart, TResume, TReturn, TSuspend$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Loop/Internal/AbstractDriver.php
+
+		-
+			message: '#^PHPDoc tag @var for variable \$fiber contains generic class Fiber but does not specify its types\: TStart, TResume, TReturn, TSuspend$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Loop/Internal/AbstractDriver.php
+
+		-
+			message: '#^Parameter \#1 \$string of function str_increment expects non\-empty\-string, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Loop/Internal/AbstractDriver.php
+
+		-
+			message: '#^Property Fledge\\Loop\\Internal\\AbstractDriver\:\:\$callbackFiber with generic class Fiber does not specify its types\: TStart, TResume, TReturn, TSuspend$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Loop/Internal/AbstractDriver.php
+
+		-
+			message: '#^Property Fledge\\Loop\\Internal\\AbstractDriver\:\:\$fiber with generic class Fiber does not specify its types\: TStart, TResume, TReturn, TSuspend$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Loop/Internal/AbstractDriver.php
+
+		-
+			message: '#^Property Fledge\\Loop\\Internal\\AbstractDriver\:\:\$suspensions with generic class Fledge\\Loop\\Internal\\DriverSuspension does not specify its types\: T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Loop/Internal/AbstractDriver.php
+
+		-
+			message: '#^Call to function assert\(\) with true will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Loop/Internal/DriverSuspension.php
+
+		-
+			message: '#^If condition is always true\.$#'
+			identifier: if.alwaysTrue
+			count: 1
+			path: src/Loop/Internal/DriverSuspension.php
+
+		-
+			message: '#^Instanceof between Fledge\\Loop\\Internal\\DriverSuspension and Fledge\\Loop\\Internal\\DriverSuspension will always evaluate to true\.$#'
+			identifier: instanceof.alwaysTrue
+			count: 1
+			path: src/Loop/Internal/DriverSuspension.php
+
+		-
+			message: '#^Method Fledge\\Loop\\Internal\\DriverSuspension\:\:__construct\(\) has parameter \$suspensions with generic class Fledge\\Loop\\Internal\\DriverSuspension but does not specify its types\: T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Loop/Internal/DriverSuspension.php
+
+		-
+			message: '#^Method Fledge\\Loop\\Internal\\DriverSuspension\:\:formatStacktrace\(\) has parameter \$trace with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Loop/Internal/DriverSuspension.php
+
+		-
+			message: '#^Property Fledge\\Loop\\Internal\\DriverSuspension\:\:\$fiberRef with generic class Fiber does not specify its types\: TStart, TResume, TReturn, TSuspend$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Loop/Internal/DriverSuspension.php
+
+		-
+			message: '#^Property Fledge\\Loop\\Internal\\DriverSuspension\:\:\$suspendedFiber is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Loop/Internal/DriverSuspension.php
+
+		-
+			message: '#^Property Fledge\\Loop\\Internal\\DriverSuspension\:\:\$suspendedFiber with generic class Fiber does not specify its types\: TStart, TResume, TReturn, TSuspend$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Loop/Internal/DriverSuspension.php
+
+		-
+			message: '#^Unreachable statement \- code above always terminates\.$#'
+			identifier: deadCode.unreachable
+			count: 1
+			path: src/Loop/Internal/DriverSuspension.php
+

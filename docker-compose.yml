@@ -1,0 +1,11 @@
+services:
+  # Linux run of the test suite.
+  #   docker compose --profile linux run --rm php86 php -d zend.assertions=1 -d assert.exception=1 vendor/bin/pest --no-coverage
+  # (the image has no composer; the -d flags mirror `composer test`, and docker/php86-cli sets the same ini defaults)
+  php86:
+    build: docker/php86-cli
+    profiles: ["linux"]
+    working_dir: /app
+    volumes:
+      - .:/app:ro
+    command: ["php", "-v"]

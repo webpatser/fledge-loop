@@ -1,0 +1,182 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Fledge\Loop\Tests\Fixtures;
+
+use Fledge\Loop\Internal\AbstractDriver;
+use Fledge\Loop\Internal\DriverCallback;
+use Fledge\Loop\Internal\TimerCallback;
+use Fledge\Loop\Internal\TimerQueue;
+
+/**
+ * A test-only driver that runs a "handler" closure at a chosen call point inside a tick, the way a signal handler run
+ * asynchronously (pcntl_async_signals(true)) or user code reached from a driver call (a stream wrapper's destructor)
+ * can run there: on entry to activate(), between two activations, or inside deactivate() of a named callback.
+ *
+ * It records how often each callback is active, so a test can assert that no callback is ever activated twice
+ * without a deactivation in between. Timers go through a real TimerQueue; stream and signal callbacks count as ready
+ * in every tick they are active, so they are enqueued by every dispatch().
+ */
+final class HookedDriver extends AbstractDriver
+{
+    /** @var array<string, DriverCallback> Callbacks currently active. */
+    public array $active = [];
+
+    /** @var list<string> Callbacks activated while already active. */
+    public array $duplicates = [];
+
+    /** @var array<string, int> Activations per callback. */
+    public array $activations = [];
+
+    /** Hooks that have run. */
+    public int $hooksRun = 0;
+
+    private ?\Closure $onActivate = null;
+
+    private ?\Closure $betweenActivations = null;
+
+    /** @var array<string, array{int, \Closure}> Hook run inside the nth deactivate() of a callback. */
+    private array $onDeactivate = [];
+
+    /** @var array<string, int> */
+    private array $deactivations = [];
+
+    private readonly TimerQueue $timers;
+
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->timers = new TimerQueue();
+    }
+
+    /** Runs the hook once, on entry to the next activate() call that has callbacks to activate. */
+    public function hookActivate(\Closure $hook): void
+    {
+        $this->onActivate = $hook;
+    }
+
+    /** Runs the hook once, after the first activation of the next activate() call with two or more callbacks. */
+    public function hookBetweenActivations(\Closure $hook): void
+    {
+        $this->betweenActivations = $hook;
+    }
+
+    /** Runs the hook once, inside the nth (1-based) deactivate() of the given callback, before it is removed. */
+    public function hookDeactivate(string $callbackId, int $nth, \Closure $hook): void
+    {
+        $this->onDeactivate[$callbackId] = [$nth, $hook];
+    }
+
+    public function isTimerQueued(string $callbackId): bool
+    {
+        // The queue has no lookup; drain a clone far in the future and look for the id.
+        $clone = clone $this->timers;
+
+        while ($timer = $clone->extract(\INF)) {
+            if ($timer->id === $callbackId) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function queuedTimerCount(): int
+    {
+        $clone = clone $this->timers;
+        $count = 0;
+
+        while ($clone->extract(\INF)) {
+            ++$count;
+        }
+
+        return $count;
+    }
+
+    #[\Override]
+    public function getHandle(): mixed
+    {
+        return null;
+    }
+
+    #[\Override]
+    protected function activate(array $callbacks): void
+    {
+        if ($callbacks === []) {
+            return;
+        }
+
+        if ($hook = $this->onActivate) {
+            $this->onActivate = null;
+            ++$this->hooksRun;
+            $hook();
+        }
+
+        $first = true;
+
+        foreach ($callbacks as $callback) {
+            if (isset($this->active[$callback->id])) {
+                $this->duplicates[] = $callback->id;
+            }
+
+            $this->active[$callback->id] = $callback;
+            $this->activations[$callback->id] = ($this->activations[$callback->id] ?? 0) + 1;
+
+            if ($callback instanceof TimerCallback) {
+                $this->timers->insert($callback);
+            }
+
+            if ($first && \count($callbacks) > 1 && ($hook = $this->betweenActivations)) {
+                $this->betweenActivations = null;
+                ++$this->hooksRun;
+                $hook();
+            }
+
+            $first = false;
+        }
+    }
+
+    #[\Override]
+    protected function deactivate(DriverCallback $callback): void
+    {
+        $id = $callback->id;
+        $this->deactivations[$id] = ($this->deactivations[$id] ?? 0) + 1;
+
+        if (isset($this->onDeactivate[$id]) && $this->onDeactivate[$id][0] === $this->deactivations[$id]) {
+            $hook = $this->onDeactivate[$id][1];
+            unset($this->onDeactivate[$id]);
+            ++$this->hooksRun;
+            $hook();
+        }
+
+        unset($this->active[$id]);
+
+        if ($callback instanceof TimerCallback) {
+            $this->timers->remove($callback);
+        }
+    }
+
+    #[\Override]
+    protected function dispatch(bool $blocking): void
+    {
+        foreach ($this->active as $callback) {
+            if (!$callback instanceof TimerCallback) {
+                $this->enqueueCallback($callback);
+            }
+        }
+
+        $now = $this->now();
+
+        while ($timer = $this->timers->extract($now)) {
+            $this->enqueueCallback($timer);
+        }
+    }
+
+    #[\Override]
+    protected function now(): float
+    {
+        return \hrtime(true) / 1e9;
+    }
+}

@@ -1,0 +1,52 @@
+name: Tests
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    name: tests (${{ matrix.os }}, FLEDGE_EVENT_LOOP ${{ matrix.event_loop }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        # unset: the variable is not set at all, so the default selection path (auto) is exercised.
+        event_loop: [unset, poll, select]
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.6'
+          extensions: pcntl, posix, sockets
+          # setup-php starts from php.ini-production (zend.assertions=-1), which compiles assertions out at startup;
+          # phpunit.xml cannot switch them back on at runtime.
+          ini-values: zend.assertions=1, assert.exception=1
+          coverage: none
+
+      - name: Validate composer.json
+        run: composer validate --strict
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Audit dependencies for known vulnerabilities
+        run: composer audit
+
+      - name: Static analysis
+        run: vendor/bin/phpstan analyse --no-progress --memory-limit=1G
+
+      - name: Run tests
+        run: |
+          if [ "$EVENT_LOOP" != unset ]; then export FLEDGE_EVENT_LOOP="$EVENT_LOOP"; fi
+          composer test
+        env:
+          EVENT_LOOP: ${{ matrix.event_loop }}

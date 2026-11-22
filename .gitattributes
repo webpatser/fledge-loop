@@ -1,0 +1,13 @@
+* text=auto eol=lf
+
+/.github export-ignore
+/tests export-ignore
+/bench export-ignore
+/docker export-ignore
+/docker-compose.yml export-ignore
+/.gitattributes export-ignore
+/.gitignore export-ignore
+/phpunit.xml export-ignore
+/phpstan.neon export-ignore
+/tools export-ignore
+/phpstan-baseline.neon export-ignore

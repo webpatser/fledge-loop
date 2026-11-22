@@ -1,0 +1,60 @@
+{
+    "name": "webpatser/fledge-loop",
+    "description": "Event loop for PHP 8.6 fibers: timers, streams, signals and suspensions on Io\\Poll, with a stream_select fallback.",
+    "homepage": "https://github.com/webpatser/fledge-loop",
+    "license": "MIT",
+    "type": "library",
+    "keywords": ["event-loop", "fiber", "fibers", "async", "non-blocking", "suspension", "epoll", "kqueue", "php86", "fledge"],
+    "support": {
+        "issues": "https://github.com/webpatser/fledge-loop/issues",
+        "source": "https://github.com/webpatser/fledge-loop"
+    },
+    "authors": [
+        {
+            "name": "Christoph Kempen",
+            "email": "christoph@downsized.nl"
+        }
+    ],
+    "require": {
+        "php": "^8.6"
+    },
+    "require-dev": {
+        "pestphp/pest": "^5.0",
+        "phpstan/phpstan": "^2.2"
+    },
+    "suggest": {
+        "ext-pcntl": "Signal callbacks (Loop::onSignal()) and Loop::fork()",
+        "ext-fiberio": "Hooked fiber I/O through Fledge\\Loop\\FiberIoWaiter"
+    },
+    "conflict": {
+        "revolt/event-loop": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Fledge\\Loop\\": "src/Loop/"
+        },
+        "classmap": ["src/Loop.php"]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Fledge\\Loop\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "@php -d zend.assertions=1 -d assert.exception=1 vendor/bin/pest --no-coverage",
+        "analyse": "@php vendor/bin/phpstan analyse --no-progress --memory-limit=1G"
+    },
+    "scripts-descriptions": {
+        "test": "Run the test suite with assertions enabled",
+        "analyse": "Run PHPStan"
+    },
+    "config": {
+        "process-timeout": 0,
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
