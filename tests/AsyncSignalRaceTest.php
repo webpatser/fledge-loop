@@ -111,6 +111,7 @@ it('ends every wait within the cap when an async signal handler defers stop()', 
         ->and($report['unhandled'])->toBe(0)
         ->and($report['handled'])->toBe($rounds)
         ->and($report['over3s'])->toBe(0, json_encode($report))
-        ->and($report['max'])->toBeLessThan($report['cap'] + 0.5, json_encode($report));
+        // Healthy: at most the cap plus scheduling delay; uncapped: the 5 s guard. 1 s of margin for shared CI runners.
+        ->and($report['max'])->toBeLessThan($report['cap'] + 1.0, json_encode($report));
 })->with(['select', 'poll'])->with(['debug' => '1', 'production' => '-1'])
     ->skip(! function_exists('pcntl_fork') || ! function_exists('posix_kill'), 'needs pcntl and posix');

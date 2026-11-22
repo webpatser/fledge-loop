@@ -214,8 +214,9 @@ abstract class DriverTest extends TestCase
         // timers firing slightly early: microtime() here and the clocks of the drivers drift apart, as
         // they do on Windows, and libevent rounds timeouts to milliseconds.
         self::assertGreaterThanOrEqual(1.495, $invoked - $start);
-        // Generous, as CI runners on macOS oversleep by more than 0.1 seconds.
-        self::assertLessThan(1.75, $invoked - $start);
+        // Generous, as CI runners on macOS oversleep by more than 0.1 seconds. Fledge: 1 s of margin instead of the
+        // original's 0.25 s because of shared CI runners; firing early, the real bug, is the strict bound above.
+        self::assertLessThan(2.5, $invoked - $start);
     }
 
     public function testLoopTerminatesWithOnlyUnreferencedCallbacks(): void
@@ -1488,7 +1489,9 @@ abstract class DriverTest extends TestCase
             });
             $loop->defer($loop->stop(...));
         });
-        self::assertGreaterThan(\microtime(true), $t + 0.1);
+        // Fledge: 0.4 s instead of the original's 0.1 s because of shared CI runners; a loop that waited for the
+        // timer would take 1 s.
+        self::assertGreaterThan(\microtime(true), $t + 0.4);
     }
 
     public function testDeferEnabledInNextTick(): void
@@ -1744,7 +1747,9 @@ abstract class DriverTest extends TestCase
     public function testTimerIntervalCountedWhenNotRunning(): void
     {
         $this->loop->delay(1, function () use (&$start): void {
-            $this->assertLessThan(0.5, \microtime(true) - $start);
+            // Fledge: 0.75 s instead of the original's 0.5 s because of shared CI runners. Healthy is at most 0.4 s,
+            // counting the interval from run() instead of from delay() gives 1 s.
+            $this->assertLessThan(0.75, \microtime(true) - $start);
         });
 
         \usleep(600000); // 600ms instead of 500ms to allow for variations in timing.

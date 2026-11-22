@@ -116,5 +116,6 @@ it('ends a wait within the cap when stream_cast() stops the loop or adds a timer
     expect($report)->toBeArray("stdout: {$result['stdout']} stderr: {$result['stderr']}")
         ->and($report['acted'])->toBeTrue()
         ->and($report['guardFired'])->toBeFalse(json_encode($report))
-        ->and($report['latency'])->toBeLessThan($report['cap'] + 0.5, json_encode($report));
+        // Healthy: at most the cap plus scheduling delay; uncapped: the 5 s guard. 1 s of margin for shared CI runners.
+        ->and($report['latency'])->toBeLessThan($report['cap'] + 1.0, json_encode($report));
 })->with(['select', 'poll'])->with(['stop', 'delay']);

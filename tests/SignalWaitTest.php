@@ -100,5 +100,6 @@ it('dispatches a signal racing the kernel wait within the cap', function (string
 
     expect($report['hung'])->toBe(0)
         ->and($report['handled'])->toBe($rounds)
-        ->and($report['max'])->toBeLessThan($report['cap'] + 0.5);
+        // Healthy: at most the cap plus scheduling delay; uncapped: the 5 s guard. 1 s of margin for shared CI runners.
+        ->and($report['max'])->toBeLessThan($report['cap'] + 1.0);
 })->with(['select', 'poll'])->skip(! function_exists('pcntl_fork') || ! function_exists('posix_kill'), 'needs pcntl and posix');

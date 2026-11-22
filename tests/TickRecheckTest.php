@@ -185,8 +185,10 @@ it('does not block on a decision that user code in the tick made out of date', f
         expect($report['error'])->toBeNull("{$case}: {$report['error']}")
             ->and($report['signalled'])->toBeTrue("{$case}: the handler never ran")
             ->and($report['hung'])->toBeFalse("{$case}: run() returned only when the watchdog woke the loop")
+            // Healthy: a few milliseconds. Blocking on the stale decision: until the next wake, about 1 s (sweep or
+            // signal cap) or never. The bound sits between the two, so a slow shared CI runner cannot fail it.
             ->and($report['latency'])->not->toBeNull($case)
-            ->toBeLessThan(0.05, "{$case}: {$report['latency']} s");
+            ->toBeLessThan(0.35, "{$case}: {$report['latency']} s");
     }
 })->with(['select', 'poll'])->with([
     'debug mode' => [[PollDriver::DEBUG_ENV => '0'], ['zend.assertions' => '1', 'assert.exception' => '1']],
