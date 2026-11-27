@@ -2,6 +2,13 @@
 
 All notable changes to this project are listed here, in the style of [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.1.1 - 2026-11-27
+
+### Added
+
+- **`Durations` helper.** `Fledge\Loop\Durations` converts between PHP 8.6's `Time\Duration` and the loop's float seconds: `fromSeconds()` (INF or beyond the `Duration` range of 9,223,372,035.999999999 seconds is null, meaning no limit; NAN and negative values throw the loop's delay `\Error`), `toSeconds()`, `toMilliseconds()`, `toMicroseconds()`, `toNanoseconds()` and `nullable()` (null stays "no timeout"). Conversions from float always round up, so nothing waits shorter than asked; the `to*()` methods keep the sign of a negated `Duration` and saturate INF to `PHP_INT_MAX`.
+- **`Duration` timers.** `Loop::delay()`, `Loop::repeat()` and `Driver::delay()`/`Driver::repeat()` take `Time\Duration|float`. A `Duration` is converted to float seconds once, on entry; timers, the timer queue and the clock stay float, and float input behaves exactly as before. A negated `Duration` throws the same `\Error` as a negative delay or interval. A timer that never fires is still float `INF`, since a `Duration` has no infinity. A third-party `Driver` implementation widens both parameters to `Duration|float` (keeping `float` is a fatal error when the class loads).
+
 ## 0.1.0 - 2026-11-22
 
 First release. Fledge Loop is the event loop for Fledge on PHP 8.6: fibers, suspensions, timers, signals and non-blocking stream I/O behind the `Fledge\Loop` facade, with a driver on PHP 8.6's `Io\Poll` (kqueue, epoll). It is derived from revolt/event-loop v1.1.0 and keeps its callback model and public API under the `Fledge\Loop` namespace (`Fledge\Loop` for `Revolt\EventLoop`, `Fledge\Loop\*` for `Revolt\EventLoop\*`); see [ORIGINS.md](ORIGINS.md).

@@ -30,6 +30,8 @@ function runPhpSubprocess(string $code, array $env = [], float $timeout = 60.0, 
     $command = [
         PHP_BINARY,
         '-d', 'display_errors=stderr',
+        // A machine-level ini may set error_log to a file; an empty value sends error_log() output to stderr on the CLI.
+        '-d', 'error_log=',
         '-d', 'zend.assertions='.ini_get('zend.assertions'),
         '-d', 'assert.exception='.ini_get('assert.exception'),
     ];

@@ -21,6 +21,7 @@ use Fledge\Loop\LoopStateException;
 use Fledge\Loop\Suspension;
 use Fledge\Loop\UnknownDriverException;
 use Fledge\Loop\UnsupportedFeatureException;
+use Time\Duration;
 
 /**
  * Accessor to allow global access to the event loop.
@@ -165,16 +166,17 @@ final class Loop
      * The created callback MUST immediately be marked as enabled, but only be activated (i.e. callback can be called)
      * right before the next tick. Callbacks MUST NOT be called in the tick they were enabled.
      *
-     * @param float $delay The amount of time, in seconds, to delay the execution for: zero or more (-0.0 counts as
-     *     zero). INF schedules a timer that never fires; while referenced it keeps the loop running.
+     * @param Duration|float $delay The amount of time to delay the execution for, as a `Duration` or in seconds:
+     *     zero or more (-0.0 counts as zero). A `Duration` is converted to float seconds once, on entry. Float INF
+     *     schedules a timer that never fires; while referenced it keeps the loop running.
      * @param \Closure(string):void $closure The callback to delay. The `$callbackId` will be invalidated
      *     before the callback invocation.
      *
      * @return string A unique identifier that can be used to cancel, enable or disable the callback.
      *
-     * @throws \Error When the delay is negative or NAN.
+     * @throws \Error When the delay is negative (a negated `Duration` included) or NAN.
      */
-    public static function delay(float $delay, \Closure $closure): string
+    public static function delay(Duration|float $delay, \Closure $closure): string
     {
         return self::getDriver()->delay($delay, $closure);
     }
@@ -189,15 +191,16 @@ final class Loop
      * The created callback MUST immediately be marked as enabled, but only be activated (i.e. callback can be called)
      * right before the next tick. Callbacks MUST NOT be called in the tick they were enabled.
      *
-     * @param float $interval The time interval, in seconds, to wait between executions: zero or more (-0.0 counts
-     *     as zero). INF schedules a timer that never fires; while referenced it keeps the loop running.
+     * @param Duration|float $interval The time interval to wait between executions, as a `Duration` or in seconds:
+     *     zero or more (-0.0 counts as zero). A `Duration` is converted to float seconds once, on entry. Float INF
+     *     schedules a timer that never fires; while referenced it keeps the loop running.
      * @param \Closure(string):void $closure The callback to repeat.
      *
      * @return string A unique identifier that can be used to cancel, enable or disable the callback.
      *
-     * @throws \Error When the interval is negative or NAN.
+     * @throws \Error When the interval is negative (a negated `Duration` included) or NAN.
      */
-    public static function repeat(float $interval, \Closure $closure): string
+    public static function repeat(Duration|float $interval, \Closure $closure): string
     {
         return self::getDriver()->repeat($interval, $closure);
     }

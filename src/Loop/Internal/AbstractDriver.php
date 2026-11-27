@@ -9,10 +9,12 @@ namespace Fledge\Loop\Internal;
 
 use Fledge\Loop\CallbackType;
 use Fledge\Loop\Driver;
+use Fledge\Loop\Durations;
 use Fledge\Loop\FiberLocal;
 use Fledge\Loop\InvalidCallbackError;
 use Fledge\Loop\Suspension;
 use Fledge\Loop\UncaughtThrowable;
+use Time\Duration;
 
 /**
  * Event loop driver which implements all basic operations to allow interoperability.
@@ -183,8 +185,13 @@ abstract class AbstractDriver implements Driver
     }
 
     #[\Override]
-    public function delay(float $delay, \Closure $closure): string
+    public function delay(Duration|float $delay, \Closure $closure): string
     {
+        // A Duration becomes float seconds once, here; a negated one is a negative float and fails the guard below.
+        if ($delay instanceof Duration) {
+            $delay = Durations::toSeconds($delay);
+        }
+
         // NAN fails every comparison: rejected here, it would corrupt the timer heap's order.
         if (!($delay >= 0)) {
             throw new \Error(\is_nan($delay) ? "Delay must be a number, NAN given" : "Delay must be greater than or equal to zero");
@@ -200,8 +207,12 @@ abstract class AbstractDriver implements Driver
     }
 
     #[\Override]
-    public function repeat(float $interval, \Closure $closure): string
+    public function repeat(Duration|float $interval, \Closure $closure): string
     {
+        if ($interval instanceof Duration) {
+            $interval = Durations::toSeconds($interval);
+        }
+
         if (!($interval >= 0)) {
             throw new \Error(\is_nan($interval) ? "Interval must be a number, NAN given" : "Interval must be greater than or equal to zero");
         }

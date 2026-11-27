@@ -7,6 +7,8 @@ declare(strict_types=1);
 
 namespace Fledge\Loop;
 
+use Time\Duration;
+
 /**
  * The driver MUST run in its own fiber and execute callbacks in a separate fiber. If fibers are reused, the driver
  * needs to call {@see FiberLocal::clear()} after running the callback.
@@ -91,16 +93,17 @@ interface Driver
      * The created callback MUST immediately be marked as enabled, but only be activated (i.e. callback can be called)
      * right before the next tick. Callbacks MUST NOT be called in the tick they were enabled.
      *
-     * @param float $delay The amount of time, in seconds, to delay the execution for: zero or more (-0.0 counts as
-     *     zero). INF schedules a timer that never fires; while referenced it keeps the loop running.
+     * @param Duration|float $delay The amount of time to delay the execution for, as a `Duration` or in seconds:
+     *     zero or more (-0.0 counts as zero). A `Duration` is converted to float seconds once, on entry. Float INF
+     *     schedules a timer that never fires; while referenced it keeps the loop running.
      * @param \Closure(string):void $closure The callback to delay. The `$callbackId` will be invalidated before the
      *     callback invocation.
      *
      * @return string A unique identifier that can be used to cancel, enable or disable the callback.
      *
-     * @throws \Error When the delay is negative or NAN.
+     * @throws \Error When the delay is negative (a negated `Duration` included) or NAN.
      */
-    public function delay(float $delay, \Closure $closure): string;
+    public function delay(Duration|float $delay, \Closure $closure): string;
 
     /**
      * Repeatedly execute a callback.
@@ -112,15 +115,16 @@ interface Driver
      * The created callback MUST immediately be marked as enabled, but only be activated (i.e. callback can be called)
      * right before the next tick. Callbacks MUST NOT be called in the tick they were enabled.
      *
-     * @param float $interval The time interval, in seconds, to wait between executions: zero or more (-0.0 counts
-     *     as zero). INF schedules a timer that never fires; while referenced it keeps the loop running.
+     * @param Duration|float $interval The time interval to wait between executions, as a `Duration` or in seconds:
+     *     zero or more (-0.0 counts as zero). A `Duration` is converted to float seconds once, on entry. Float INF
+     *     schedules a timer that never fires; while referenced it keeps the loop running.
      * @param \Closure(string):void $closure The callback to repeat.
      *
      * @return string A unique identifier that can be used to cancel, enable or disable the callback.
      *
-     * @throws \Error When the interval is negative or NAN.
+     * @throws \Error When the interval is negative (a negated `Duration` included) or NAN.
      */
-    public function repeat(float $interval, \Closure $closure): string;
+    public function repeat(Duration|float $interval, \Closure $closure): string;
 
     /**
      * Execute a callback when a stream resource becomes readable or is closed for reading.

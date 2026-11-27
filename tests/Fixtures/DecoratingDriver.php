@@ -7,6 +7,7 @@ namespace Fledge\Loop\Tests\Fixtures;
 use Fledge\Loop\CallbackType;
 use Fledge\Loop\Driver;
 use Fledge\Loop\Suspension;
+use Time\Duration;
 
 /**
  * A third-party Driver implementation (it does not extend Fledge's driver base): forwards every call to an inner
@@ -49,12 +50,12 @@ final class DecoratingDriver implements Driver
         return $this->inner->defer($closure);
     }
 
-    public function delay(float $delay, \Closure $closure): string
+    public function delay(Duration|float $delay, \Closure $closure): string
     {
         return $this->inner->delay($delay, $closure);
     }
 
-    public function repeat(float $interval, \Closure $closure): string
+    public function repeat(Duration|float $interval, \Closure $closure): string
     {
         return $this->inner->repeat($interval, $closure);
     }
