@@ -88,6 +88,21 @@ final class Durations
     }
 
     /**
+     * Whole seconds, rounded up (towards positive infinity). Sign, saturation and NAN as in `toMilliseconds()`; int
+     * input passes through.
+     *
+     * A `Duration` is converted with integer maths, so any nanosecond fraction adds a second (200,000,000 seconds
+     * plus 1 nanosecond is 200,000,001), which a float `ceil()` loses above about 1e8 seconds. A negated `Duration`
+     * drops its fraction (-1.5 seconds is -1). Nothing is clamped to zero: that is the caller's policy.
+     *
+     * @throws \Error For NAN.
+     */
+    public static function toWholeSeconds(Duration|float|int $duration): int
+    {
+        return self::scale($duration, 1);
+    }
+
+    /**
      * Whole milliseconds, rounded up (towards positive infinity).
      *
      * The sign is kept: a negated `Duration` or a negative number gives a negative count (-1.5 ms is -1), so the
@@ -131,7 +146,7 @@ final class Durations
     }
 
     /**
-     * @param  1000|1000000|1000000000  $perSecond
+     * @param  1|1000|1000000|1000000000  $perSecond
      */
     private static function scale(Duration|float|int $duration, int $perSecond): int
     {

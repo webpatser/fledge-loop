@@ -182,6 +182,30 @@ describe('integer units', function () {
             ->and(durationParts(Duration::fromMicroseconds(Durations::toMicroseconds($duration))))->toBe([12, 345_678_000, false])
             ->and(durationParts(Duration::fromNanoseconds(Durations::toNanoseconds($duration))))->toBe([12, 345_678_000, false]);
     });
+
+    it('rounds whole seconds up, keeping the sign', function (Duration|float|int $duration, int $expected) {
+        expect(Durations::toWholeSeconds($duration))->toBe($expected);
+    })->with([
+        '1 ns is 1' => [Duration::fromNanoseconds(1), 1],
+        '1500 ms is 2' => [Duration::fromMilliseconds(1_500), 2],
+        'exactly 2 s' => [Duration::fromSeconds(2), 2],
+        'zero' => [Duration::fromSeconds(0), 0],
+        'negated 1500 ms is -1' => [Duration::fromMilliseconds(1_500)->negate(), -1],
+        'negated 2 s' => [Duration::fromSeconds(2)->negate(), -2],
+        // A float ceil() loses the 1 ns here; the integer maths keeps it.
+        '200,000,000 s plus 1 ns' => [Duration::fromSeconds(200_000_000, 1), 200_000_001],
+        'float 0.2 is 1' => [0.2, 1],
+        'float -1.5 is -1' => [-1.5, -1],
+        'int passes through' => [42, 42],
+        'negative int passes through' => [-7, -7],
+    ]);
+
+    it('saturates INF whole seconds and rejects NAN', function () {
+        expect(Durations::toWholeSeconds(INF))->toBe(PHP_INT_MAX)
+            ->and(Durations::toWholeSeconds(-INF))->toBe(PHP_INT_MIN)
+            ->and(Durations::toWholeSeconds(1e300))->toBe(PHP_INT_MAX)
+            ->and(fn () => Durations::toWholeSeconds(NAN))->toThrow(Error::class, 'Duration must be a number, NAN given');
+    });
 });
 
 describe('nullable', function () {

@@ -2,6 +2,12 @@
 
 All notable changes to this project are listed here, in the style of [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## 0.1.2 - 2026-11-27
+
+### Added
+
+- **`Durations::toWholeSeconds()`.** Whole seconds as an int, consistent with the other `to*()` methods: rounded up (towards positive infinity), the sign of a negated `Duration` kept (-1.5 seconds is -1), INF and out-of-range floats saturated to `PHP_INT_MAX`/`PHP_INT_MIN`, NAN rejected with the existing `\Error`, int input passed through. A `Duration` is converted with integer maths, so a nanosecond fraction always adds a second, also above about 1e8 seconds where a float `ceil()` loses it. It replaces the hand-rolled `(int) \ceil(Durations::toSeconds($x))`; clamping to zero stays with the caller.
+
 ## 0.1.1 - 2026-11-27
 
 ### Added
